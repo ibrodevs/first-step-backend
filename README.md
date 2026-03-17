@@ -9,6 +9,10 @@ cd first-step-backend
 python3 -m pip install -r requirements.txt
 python3 manage.py migrate
 python3 manage.py runserver
+
+# Если вы тестируете с физического телефона (Expo Go на iOS/Android),
+# запускайте так, чтобы сервер был доступен из локальной сети:
+python3 manage.py runserver 0.0.0.0:8000
 ```
 
 ## Эндпоинты

@@ -3,6 +3,7 @@ from __future__ import annotations
 import logging
 from rest_framework import generics, status
 from rest_framework.exceptions import ValidationError
+from rest_framework.parsers import FormParser, JSONParser, MultiPartParser
 from rest_framework.permissions import AllowAny, IsAuthenticated
 from rest_framework.response import Response
 from rest_framework.throttling import SimpleRateThrottle
@@ -73,6 +74,7 @@ class LogoutView(APIView):
 class MeProfileView(generics.RetrieveUpdateAPIView):
     permission_classes = [IsAuthenticated]
     serializer_class = ProfileSerializer
+    parser_classes = (MultiPartParser, FormParser, JSONParser)
 
     forbidden_fields = {"id", "email", "is_active", "is_staff", "is_superuser"}
 
