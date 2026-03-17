@@ -17,11 +17,8 @@ INSTALLED_APPS = [
     "django.contrib.sessions",
     "django.contrib.messages",
     "django.contrib.staticfiles",
-    "django.contrib.sites",
     "rest_framework",
-    "rest_framework_simplejwt.token_blacklist",
     "corsheaders",
-    "drf_spectacular",
     "apps.accounts.apps.AccountsConfig",
 ]
 
@@ -85,9 +82,6 @@ MEDIA_URL = "/media/"
 MEDIA_ROOT = BASE_DIR / "media"
 DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
 
-AUTH_USER_MODEL = "accounts.User"
-SITE_ID = 1
-
 _cors_allowed_origins_env = os.getenv("CORS_ALLOWED_ORIGINS", "")
 CORS_ALLOWED_ORIGINS = [o.strip() for o in _cors_allowed_origins_env.split(",") if o.strip()]
 
@@ -117,31 +111,15 @@ REST_FRAMEWORK = {
     "DEFAULT_PERMISSION_CLASSES": (
         "rest_framework.permissions.IsAuthenticated",
     ),
-    "DEFAULT_SCHEMA_CLASS": "drf_spectacular.openapi.AutoSchema",
     "EXCEPTION_HANDLER": "config.exceptions.api_exception_handler",
-    "DEFAULT_THROTTLE_CLASSES": (
-        "rest_framework.throttling.AnonRateThrottle",
-        "rest_framework.throttling.UserRateThrottle",
-    ),
-    "DEFAULT_THROTTLE_RATES": {
-        "anon": os.getenv("DRF_THROTTLE_ANON", "60/min"),
-        "user": os.getenv("DRF_THROTTLE_USER", "120/min"),
-        "login": os.getenv("DRF_THROTTLE_LOGIN", "60/min"),
-    },
 }
 
 SIMPLE_JWT = {
     "ACCESS_TOKEN_LIFETIME": timedelta(minutes=50),
     "REFRESH_TOKEN_LIFETIME": timedelta(days=7),
-    "ROTATE_REFRESH_TOKENS": True,
-    "BLACKLIST_AFTER_ROTATION": True,
+    "ROTATE_REFRESH_TOKENS": False,
+    "BLACKLIST_AFTER_ROTATION": False,
     "UPDATE_LAST_LOGIN": True,
-}
-
-SPECTACULAR_SETTINGS = {
-    "TITLE": "First Step API",
-    "VERSION": "v1",
-    "SERVE_INCLUDE_SCHEMA": False,
 }
 
 LOGGING = {

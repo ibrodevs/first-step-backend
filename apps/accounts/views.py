@@ -6,25 +6,12 @@ from rest_framework.exceptions import ValidationError
 from rest_framework.parsers import FormParser, JSONParser, MultiPartParser
 from rest_framework.permissions import AllowAny, IsAuthenticated
 from rest_framework.response import Response
-from rest_framework.throttling import SimpleRateThrottle
 from rest_framework.views import APIView
-from rest_framework_simplejwt.tokens import RefreshToken
 
-from .models import Profile, User
+from .models import Profile
 from .serializers import ChangePasswordSerializer, LoginSerializer, ProfileSerializer, RegisterSerializer
 
 logger = logging.getLogger(__name__)
-
-
-class LoginThrottle(SimpleRateThrottle):
-    scope = "login"
-
-    def get_cache_key(self, request, view):
-        if request.user and request.user.is_authenticated:
-            ident = request.user.pk
-        else:
-            ident = self.get_ident(request)
-        return self.cache_format % {"scope": self.scope, "ident": ident}
 
 
 class RegisterView(generics.CreateAPIView):
@@ -44,7 +31,6 @@ class RegisterView(generics.CreateAPIView):
 
 class LoginView(APIView):
     permission_classes = [AllowAny]
-    throttle_classes = [LoginThrottle]
 
     def post(self, request):
         serializer = LoginSerializer(data=request.data, context={"request": request})
@@ -57,16 +43,6 @@ class LogoutView(APIView):
     permission_classes = [IsAuthenticated]
 
     def post(self, request):
-        refresh = request.data.get("refresh")
-        if not refresh:
-            raise ValidationError({"refresh": ["This field is required."]})
-
-        try:
-            token = RefreshToken(refresh)
-            token.blacklist()
-        except Exception:
-            raise ValidationError({"refresh": ["Invalid refresh token."]})
-
         logger.info("logout success user_id=%s", request.user.id)
         return Response(status=status.HTTP_205_RESET_CONTENT)
 
@@ -96,23 +72,12 @@ class ChangePasswordView(APIView):
         serializer = ChangePasswordSerializer(data=request.data)
         serializer.is_valid(raise_exception=True)
 
-        user: User = request.user
+        user = request.user
         if not user.check_password(serializer.validated_data["old_password"]):
             raise ValidationError({"old_password": ["Old password is incorrect."]})
 
         user.set_password(serializer.validated_data["new_password"])
         user.save(update_fields=["password"])
-
-        try:
-            from rest_framework_simplejwt.token_blacklist.models import BlacklistedToken, OutstandingToken
-
-            tokens = OutstandingToken.objects.filter(user=user)
-            BlacklistedToken.objects.bulk_create(
-                [BlacklistedToken(token=t) for t in tokens if not hasattr(t, "blacklistedtoken")],
-                ignore_conflicts=True,
-            )
-        except Exception:
-            pass
 
         logger.info("password changed user_id=%s", user.id)
         return Response(status=status.HTTP_200_OK)

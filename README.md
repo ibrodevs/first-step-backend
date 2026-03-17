@@ -1,6 +1,6 @@
 # First Step Backend (Django + DRF)
 
-Минимальный backend по ТЗ: регистрация, логин/логаут, профиль, смена пароля, JWT (access+refresh), blacklist refresh, OpenAPI.
+Простой backend: регистрация, логин/логаут (без blacklist), профиль, смена пароля, JWT (access+refresh).
 
 ## Быстрый старт
 
@@ -25,10 +25,6 @@ python3 manage.py runserver 0.0.0.0:8000
 - `PATCH /api/v1/profile/me/`
 - `POST /api/v1/profile/change-password/`
 
-OpenAPI:
-- `GET /api/schema/`
-- `GET /api/docs/`
-
 ## Настройки через env
 
 - `DJANGO_SECRET_KEY`
@@ -42,9 +38,6 @@ DB (PostgreSQL):
 CORS:
 - `CORS_ALLOWED_ORIGINS`
 - `CORS_ALLOW_ALL_ORIGINS=1` (только для локальной разработки)
-
-Throttling:
-- `DRF_THROTTLE_ANON`, `DRF_THROTTLE_USER`, `DRF_THROTTLE_LOGIN`
 
 ## Тесты
 
